@@ -16,7 +16,7 @@ from app.serializers import UserSerializer, BrandSerializer, CategorySerializer,
     OrderSerializer, SizeSerializer, CheckoutSerializer
 
 from base64 import b64decode
-import facebook
+# import facebook
 import requests
 import json
 import urllib2
@@ -1222,56 +1222,56 @@ def change_seller_status(request):
             return Response({'status': 'Token does not exist!'})
 
 
-@api_view(['POST'])
-def login_facebook(request):
-    """
-    Login user via facebook
-    Example json:
-    {
-        "access_token": "CAAX1APE2yaEBAB6ZADh1lcbPVbk9HZCgAIrjv8JDxVdyK01Iki4alcg7LrY"
-    }
-    """
-    if request.method == "POST":
-        if "access_token" in request.data and request.data["access_token"] != "" and \
-                        request.data["access_token"] is not None:
-            graph = facebook.GraphAPI(access_token=request.data["access_token"], timeout=60)
-            facebook_user = graph.get_object("me", fields='id, name, email, first_name, last_name, picture.type(large),'
-                                                          ' bio, birthday, gender, hometown, about')
-            if UserProfile.objects.filter(facebook_id=facebook_user["id"]).exists():
-                user_profile = get_object_or_404(UserProfile, facebook_id=facebook_user["id"])
-                user = get_object_or_404(User, pk=user_profile.user_id)
-                token = get_object_or_404(Token, user_id=user.id)
-                serializer = UserSerializer(user, context={'user_id': token.user_id})
-                return Response({"status": "Successfully login user via facebook!",
-                                 "token": token.key,
-                                 "user": serializer.data})
-            else:
-                if facebook_user["first_name"] and facebook_user["last_name"]:
-                    username = facebook_user["first_name"].lower() + facebook_user["last_name"].lower()
-                else:
-                    username = facebook_user["id"]
-                user = User.objects.create(username=username,
-                                           first_name=facebook_user["first_name"],
-                                           last_name=facebook_user["last_name"],
-                                           email=facebook_user["email"]
-                                           )
-                user.set_password(username + facebook_user["id"] + facebook_user["email"])
-                user.save()
-                token = Token.objects.create(user=user)
-                user_profile = UserProfile.objects.create(user=user,
-                                                          user_source="facebook",
-                                                          facebook_id=facebook_user["id"],
-                                                          profile_type="client")
-                url = "http://graph.facebook.com/" + str(facebook_user["id"]) + "/picture?type=large"
-                r = requests.get(url)
-                img_temp = NamedTemporaryFile(delete=True)
-                img_temp.write(r.content)
-                img_temp.flush()
-                user_profile.avatar.save("image.jpg", File(img_temp), save=True)
-                serializer = UserSerializer(user, context={'user_id': token.user_id})
-                return Response({"status": "Successfully login via facebook!",
-                                 "token": token.key,
-                                 "user": serializer.data})
+# @api_view(['POST'])
+# def login_facebook(request):
+#     """
+#     Login user via facebook
+#     Example json:
+#     {
+#         "access_token": "CAAX1APE2yaEBAB6ZADh1lcbPVbk9HZCgAIrjv8JDxVdyK01Iki4alcg7LrY"
+#     }
+#     """
+#     if request.method == "POST":
+#         if "access_token" in request.data and request.data["access_token"] != "" and \
+#                         request.data["access_token"] is not None:
+#             graph = facebook.GraphAPI(access_token=request.data["access_token"], timeout=60)
+#             facebook_user = graph.get_object("me", fields='id, name, email, first_name, last_name, picture.type(large),'
+#                                                           ' bio, birthday, gender, hometown, about')
+#             if UserProfile.objects.filter(facebook_id=facebook_user["id"]).exists():
+#                 user_profile = get_object_or_404(UserProfile, facebook_id=facebook_user["id"])
+#                 user = get_object_or_404(User, pk=user_profile.user_id)
+#                 token = get_object_or_404(Token, user_id=user.id)
+#                 serializer = UserSerializer(user, context={'user_id': token.user_id})
+#                 return Response({"status": "Successfully login user via facebook!",
+#                                  "token": token.key,
+#                                  "user": serializer.data})
+#             else:
+#                 if facebook_user["first_name"] and facebook_user["last_name"]:
+#                     username = facebook_user["first_name"].lower() + facebook_user["last_name"].lower()
+#                 else:
+#                     username = facebook_user["id"]
+#                 user = User.objects.create(username=username,
+#                                            first_name=facebook_user["first_name"],
+#                                            last_name=facebook_user["last_name"],
+#                                            email=facebook_user["email"]
+#                                            )
+#                 user.set_password(username + facebook_user["id"] + facebook_user["email"])
+#                 user.save()
+#                 token = Token.objects.create(user=user)
+#                 user_profile = UserProfile.objects.create(user=user,
+#                                                           user_source="facebook",
+#                                                           facebook_id=facebook_user["id"],
+#                                                           profile_type="client")
+#                 url = "http://graph.facebook.com/" + str(facebook_user["id"]) + "/picture?type=large"
+#                 r = requests.get(url)
+#                 img_temp = NamedTemporaryFile(delete=True)
+#                 img_temp.write(r.content)
+#                 img_temp.flush()
+#                 user_profile.avatar.save("image.jpg", File(img_temp), save=True)
+#                 serializer = UserSerializer(user, context={'user_id': token.user_id})
+#                 return Response({"status": "Successfully login via facebook!",
+#                                  "token": token.key,
+#                                  "user": serializer.data})
 
 
 @api_view(['POST'])
@@ -1368,8 +1368,7 @@ def generate_braintree_client_token(request):
   """
   if request.method == 'POST':
     if Token.objects.filter(key=request.data['token']).exists():
-      customer_id = request.query_params.get('customer_id', None)
-      return Response({'client_token': braintree.ClientToken.generate({ 'customer_id': 'customer_id' })})
+      return Response({'client_token': braintree.ClientToken.generate()})
     else:
       return Response({'status': 'Token does not exist!'})
 
@@ -1378,14 +1377,28 @@ def generate_braintree_client_token(request):
 def create_braintree_subscription(request):
   """
   Create braintree transaction
+
+  Example
+  {
+    "token": "4296e2830490845bdd8d44d47754bf1424f8c3c5",
+    "payment_method_token": "fake-valid-nonce",
+    "product_ids": "8,9,10",
+    "quantity": "1,2,3"
+  }
+
   """
   if request.method == 'POST':
     if Token.objects.filter(key=request.data['token']).exists():
-      nonce_from_the_client = request.data["payment_method_nonce"]
-      item_id = request.query_params.get("payment_method_token", None)
-      item = get_object_or_404(Item, pk=item_id)
-      amount = item.cost
+      nonce_from_the_client = request.data["payment_method_token"]
+      item_ids = request.data["product_ids"].split(',')
+      item_qts = request.data["quantity"].split(',')
+
       # Use payment method nonce here...
+      amount = 0
+      for i in range(len(item_ids)):
+        item = get_object_or_404(Item, pk=item_ids[i])
+        amount += item.cost*int(item_qts[i])
+
       result = braintree.Transaction.sale({
         "amount": str(amount),
         "payment_method_nonce": nonce_from_the_client,
@@ -1393,6 +1406,7 @@ def create_braintree_subscription(request):
           "submit_for_settlement": True
         }
       })
+
       return Response({"status": 'successful'})
     else:
       return Response({'status': 'Token does not exist!'})

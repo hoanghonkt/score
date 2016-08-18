@@ -11,7 +11,7 @@ from app.views import registration, login, get_user_by_id, change_avatar, change
     search_all_items_client, search_all_items_stylist, sort_sold_items, sort_unsold_items, sort_all_items_client,\
     sort_all_items_stylist, sort_favorite, search_favorite, get_stylist_unsold_items, get_single_item, buy_item, \
     get_client_bought_items, get_sizes, get_client_single_bought_item, get_client_checkout_items, \
-    get_stylist_checkout_items, change_seller_status, change_buyer_status, login_facebook, login_instagram, \
+    get_stylist_checkout_items, change_seller_status, change_buyer_status, login_instagram, \
     get_seller_checkout_by_status, get_buyer_checkout_by_status, generate_braintree_client_token, create_braintree_subscription#, login_google
 
 urlpatterns = patterns(
@@ -20,7 +20,7 @@ urlpatterns = patterns(
     # login/registration system
     url(r'^api/v1/registration/$', registration),
     url(r'^api/v1/login/$', login),
-    url(r'^api/v1/login-facebook/$', login_facebook),
+    # url(r'^api/v1/login-facebook/$', login_facebook),
     url(r'^api/v1/login-instagram/$', login_instagram),
     # url(r'^api/v1/login-google/$', login_google),
     # add
