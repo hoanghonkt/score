@@ -11,9 +11,9 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
 from app.models import UserProfile, UserNotification, Brand, Category, Item, ItemPhoto, Follow, Hashtag, \
-    Comment, Like, StylistRating, Favorite, Order, Size, ItemSize, Checkout
+    Comment, Like, StylistRating, Favorite, Order, Size, ItemSize, Checkout, UserLocation
 from app.serializers import UserSerializer, BrandSerializer, CategorySerializer, ItemSerializer, FavoriteSerializer, \
-    OrderSerializer, SizeSerializer, CheckoutSerializer
+    OrderSerializer, SizeSerializer, CheckoutSerializer, UserLocationSerializer
 
 from base64 import b64decode
 # import facebook
@@ -24,9 +24,9 @@ import urllib2
 import braintree
 
 braintree.Configuration.configure(braintree.Environment.Sandbox,
-  merchant_id="454g5vrdsh3wv7sf",
-  public_key="9d4szd6cxkspp923",
-  private_key="8e985d7cd53b5b34ae908f5f23e8458b")
+  merchant_id="mkqvh62sqf3yp4cp",
+  public_key="fbwv4j5y2xnvy4pd",
+  private_key="a7b54d7d1d6938b24da2c332661162b5")
 
 TRANSACTION_SUCCESS_STATUSES = [
     braintree.Transaction.Status.Authorized,
@@ -1411,6 +1411,35 @@ def create_braintree_subscription(request):
     else:
       return Response({'status': 'Token does not exist!'})
 
+@api_view(["POST"])
+def user_location(request):
+  """
+  Create/Update User location
+
+  Example
+  {
+    "token": "4296e2830490845bdd8d44d47754bf1424f8c3c5",
+    "latitude": "10.790451",
+    "longitude": "106.711945"
+  }
+
+  """
+  if request.method == 'POST':
+    if Token.objects.filter(key=request.data['token']).exists():
+      token = get_object_or_404(Token, key=request.data["token"])
+      latitude = request.data["latitude"]
+      longitude = request.data["longitude"]
+      if UserLocation.objects.filter(user_id=token.user_id).exists():
+        user_location = get_object_or_404(UserLocation, user_id=token.user_id)
+        user_location.latitude = latitude
+        user_location.longitude = longitude
+        user_location.save()
+      else:
+        user_location = UserLocation.objects.create(user_id=token.user_id, latitude=latitude, longitude=longitude)
+      serializer = UserLocationSerializer(user_location)
+      return Response(serializer.data)
+    else:
+      return Response({'status': 'Token does not exist!'})
 
 # @api_view(['POST'])
 # def login_google(request):

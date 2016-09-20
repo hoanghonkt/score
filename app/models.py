@@ -257,3 +257,16 @@ class Checkout(models.Model):
     payment_status = models.BooleanField(default=False)
     seller_status = models.BooleanField(default=False)
     buyer_status = models.BooleanField(default=False)
+
+class UserLocation(models.Model):
+    """
+    Model for user location
+    - user
+    - latitude
+    - longitude
+    """
+    user = models.ForeignKey(User)
+    latitude = models.CharField(max_length=12)
+    longitude = models.CharField(max_length=12)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

@@ -12,7 +12,7 @@ from app.views import registration, login, get_user_by_id, change_avatar, change
     sort_all_items_stylist, sort_favorite, search_favorite, get_stylist_unsold_items, get_single_item, buy_item, \
     get_client_bought_items, get_sizes, get_client_single_bought_item, get_client_checkout_items, \
     get_stylist_checkout_items, change_seller_status, change_buyer_status, login_instagram, \
-    get_seller_checkout_by_status, get_buyer_checkout_by_status, generate_braintree_client_token, create_braintree_subscription#, login_google
+    get_seller_checkout_by_status, get_buyer_checkout_by_status, generate_braintree_client_token, create_braintree_subscription, user_location#, login_google
 
 urlpatterns = patterns(
     '',
@@ -83,5 +83,6 @@ urlpatterns = patterns(
     url(r'^api/v1/checkout/get-buyer-checkout-by-status/$', get_buyer_checkout_by_status),
     # braintree
     url(r'^api/v1/generate_braintree_client_token$', generate_braintree_client_token),
-    url(r'^api/v1/create_braintree_subscription$', create_braintree_subscription)
+    url(r'^api/v1/create_braintree_subscription$', create_braintree_subscription),
+    url(r'^api/v1/user_location$', user_location)
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
